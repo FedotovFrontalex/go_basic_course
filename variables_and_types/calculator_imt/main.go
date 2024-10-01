@@ -6,8 +6,11 @@ import (
 )
 
 func main() {
-		var userHeight = 1.8
-		var userWeight float64 = 100
-		var IMT = userWeight / math.Pow(userHeight, 2)
-		fmt.Print(IMT)
+	const IMTPower = 2
+	//	var userHeight, userWeight float64 = 1.8, 100
+	userHeight := 1.8
+	//var userWeight float64 = 100
+	userWeight := 100.0
+	IMT := userWeight / math.Pow(userHeight, IMTPower)
+	fmt.Print(IMT)
 }
