@@ -10,15 +10,15 @@ const USDRUBKoeff = 92.0
 const EURRUBKoeff = 1 / (USDEURKoeff / USDRUBKoeff)
 
 func main() {
-		for {
-				converter()
+	for {
+		converter()
 
-				isRepeat := promptConvertAgain()
+		isRepeat := promptConvertAgain()
 
-				if !isRepeat {
-						break
-				}
+		if !isRepeat {
+			break
 		}
+	}
 }
 
 func converter() {
@@ -149,9 +149,9 @@ func requestTargetCurrency(initialCurrency string) (string, error) {
 }
 
 func promptConvertAgain() bool {
-		var answer string
-		fmt.Print("Рассчитать другие данные (y/n)? ")
-		fmt.Scan(&answer)
+	var answer string
+	fmt.Print("Рассчитать другие данные (y/n)? ")
+	fmt.Scan(&answer)
 
-		return answer == "y" || answer == "Y"
+	return answer == "y" || answer == "Y"
 }
