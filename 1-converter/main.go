@@ -16,7 +16,7 @@ func main() {
 	currencyKoeffs := initKoeff()
 
 	for {
-		converter(currencyKoeffs)
+		converter(&currencyKoeffs)
 
 		isRepeat := promptConvertAgain()
 
@@ -50,7 +50,7 @@ func initKoeff() baseCurrencyMap {
 	return baseCurrency
 }
 
-func converter(koeffs baseCurrencyMap) {
+func converter(koeffs *baseCurrencyMap) {
 	var initialCurrency string
 	var targetCurrency string
 	var amount float64
@@ -83,8 +83,8 @@ func converter(koeffs baseCurrencyMap) {
 	convert(koeffs, initialCurrency, targetCurrency, amount)
 }
 
-func convert(koeffs baseCurrencyMap, initialCurrency string, targetCurrency string, amount float64) {
-	convertedAmount := amount * koeffs[initialCurrency][targetCurrency]
+func convert(koeffs *baseCurrencyMap, initialCurrency string, targetCurrency string, amount float64) {
+	convertedAmount := amount * (*koeffs)[initialCurrency][targetCurrency]
 	fmt.Printf("%.2f %q = %.2f %q \n", amount, initialCurrency, convertedAmount, targetCurrency)
 }
 
