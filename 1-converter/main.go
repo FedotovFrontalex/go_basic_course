@@ -9,9 +9,14 @@ const USDEURKoeff = 0.84
 const USDRUBKoeff = 92.0
 const EURRUBKoeff = 1 / (USDEURKoeff / USDRUBKoeff)
 
+type currencyMap = map[string]float64
+type baseCurrencyMap = map[string]currencyMap
+
 func main() {
+	currencyKoeffs := initKoeff()
+
 	for {
-		converter()
+		converter(currencyKoeffs)
 
 		isRepeat := promptConvertAgain()
 
@@ -21,7 +26,31 @@ func main() {
 	}
 }
 
-func converter() {
+func initKoeff() baseCurrencyMap {
+	eurMap := currencyMap{
+		"usd": 1 / USDEURKoeff,
+		"rub": EURRUBKoeff,
+	}
+	usdMap := currencyMap{
+		"eur": USDEURKoeff,
+		"rub": USDRUBKoeff,
+	}
+
+	rubMap := currencyMap{
+		"eur": 1 / EURRUBKoeff,
+		"usd": 1 / USDRUBKoeff,
+	}
+
+	baseCurrency := baseCurrencyMap{
+		"usd": usdMap,
+		"eur": eurMap,
+		"rub": rubMap,
+	}
+
+	return baseCurrency
+}
+
+func converter(koeffs baseCurrencyMap) {
 	var initialCurrency string
 	var targetCurrency string
 	var amount float64
@@ -51,61 +80,12 @@ func converter() {
 		fmt.Println(err)
 	}
 
-	convert(initialCurrency, targetCurrency, amount)
+	convert(koeffs, initialCurrency, targetCurrency, amount)
 }
 
-func convert(initialCurrency string, targetCurrency string, amount float64) {
-	var convertedAmount float64
-	var err error
-
-	switch initialCurrency {
-	case "usd":
-		convertedAmount, err = convertUSD(targetCurrency, amount)
-	case "eur":
-		convertedAmount, err = convertEUR(targetCurrency, amount)
-	case "rub":
-		convertedAmount, err = convertRUB(targetCurrency, amount)
-	default:
-	}
-
-	if err != nil {
-		panic(err)
-	}
-
+func convert(koeffs baseCurrencyMap, initialCurrency string, targetCurrency string, amount float64) {
+	convertedAmount := amount * koeffs[initialCurrency][targetCurrency]
 	fmt.Printf("%.2f %q = %.2f %q \n", amount, initialCurrency, convertedAmount, targetCurrency)
-}
-
-func convertRUB(targetCurrency string, amount float64) (float64, error) {
-	switch targetCurrency {
-	case "usd":
-		return amount * (1 / USDRUBKoeff), nil
-	case "eur":
-		return amount * (1 / EURRUBKoeff), nil
-	default:
-		return 0, errors.New("Невозможно конвертировать")
-	}
-}
-
-func convertEUR(targetCurrency string, amount float64) (float64, error) {
-	switch targetCurrency {
-	case "usd":
-		return amount * (1 / USDEURKoeff), nil
-	case "rub":
-		return amount * EURRUBKoeff, nil
-	default:
-		return 0, errors.New("Невозможно конвертировать")
-	}
-}
-
-func convertUSD(targetCurrency string, amount float64) (float64, error) {
-	switch targetCurrency {
-	case "eur":
-		return amount * USDEURKoeff, nil
-	case "rub":
-		return amount * USDRUBKoeff, nil
-	default:
-		return 0, errors.New("Невозможно конвертировать")
-	}
 }
 
 func requestAmount(currency string) (float64, error) {
@@ -114,7 +94,7 @@ func requestAmount(currency string) (float64, error) {
 	fmt.Scan(&amount)
 
 	if amount <= 0 {
-		return 0, errors.New("Неверно введна сумма")
+		return 0, errors.New("Неверная сумма")
 	}
 
 	return amount, nil
