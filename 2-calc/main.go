@@ -18,16 +18,13 @@ func main() {
 
 	for {
 		operation, err = requestOperationType()
-
 		if err == nil {
 			break
 		}
-
 		fmt.Println(err)
 	}
 
 	operations := requestOpearations()
-
 	result, err = calculate(operation, operations)
 
 	if err != nil {
@@ -96,12 +93,12 @@ func trim(str string) (float64, error) {
 		return !unicode.IsNumber(r)
 	})
 	num, err := strconv.ParseFloat(numStr, 64)
+
 	return num, err
 }
 
 func calcSum(slice []float64) float64 {
 	sum := 0.0
-
 	for index := range slice {
 		sum += slice[index]
 	}
@@ -117,6 +114,6 @@ func calcMed(slice []float64) float64 {
 	sort.Slice(slice, func(i, j int) bool {
 		return slice[i] < slice[j]
 	})
-		fmt.Println("med index ", len(slice)/2)
+
 	return slice[len(slice)/2]
 }
