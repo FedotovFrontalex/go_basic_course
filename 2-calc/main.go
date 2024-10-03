@@ -69,7 +69,6 @@ func requestOpearations() []float64 {
 	fmt.Println("Введите последовательность чисел через запятую. ")
 	fmt.Println("Если введете 0 или значение отличное от числа, то такая операция не участвует в расчетах.")
 	userInput, _ := reader.ReadString('\n')
-	fmt.Println("Вы ввели: ", userInput)
 
 	return normalizeData(userInput)
 }
