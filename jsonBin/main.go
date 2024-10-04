@@ -1,41 +1,9 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"time"
+	"jsonBin/bins"
 )
-
-type Bin struct {
-	id        string
-	private   bool
-	createdAt time.Time
-	name      string
-}
-
-type BinList struct {
-	bins []Bin
-}
-
-func (binList *BinList) addBin(bin *Bin) {
-	binList.bins = append(binList.bins, *bin)
-}
-
-func (binList *BinList) print() {
-	fmt.Println("Список bin")
-
-	for index := range binList.bins {
-		binList.bins[index].print()
-		fmt.Println("---------")
-	}
-}
-
-func (bin *Bin) print() {
-	fmt.Println("id: ", bin.id)
-	fmt.Println("private: ", bin.private)
-	fmt.Println("createdAt: ", bin.createdAt)
-	fmt.Println("name: ", bin.name)
-}
 
 func main() {
 	var err error
@@ -47,7 +15,7 @@ func main() {
 
 	name := promptBinName()
 
-	bin, err := createBin(name, binList)
+	bin, err := bins.CreateBin(name, binList)
 
 	if err != nil {
 		fmt.Println(err)
@@ -55,17 +23,17 @@ func main() {
 	}
 
 	fmt.Println("Новый bin")
-	bin.print()
+	bin.Print()
 	fmt.Println("----------------")
-	binList.print()
+	binList.Print()
 }
 
-func initBinList() (*BinList, error) {
+func initBinList() (*bins.BinList, error) {
 	// Что-то делаем
 	// Пока возвращаем пустой BinList
 
-	return &BinList{
-		bins: []Bin{},
+	return &bins.BinList{
+		Bins: []bins.Bin{},
 	}, nil
 }
 
@@ -74,30 +42,4 @@ func promptBinName() string {
 	fmt.Print("Введите название Bin: ")
 	fmt.Scanln(&binName)
 	return binName
-}
-
-func createBin(name string, binList *BinList) (*Bin, error) {
-	err := validateBinName(name)
-	if err != nil {
-		return nil, err
-	}
-
-	bin := &Bin{
-		id:        "id будем получать из сервиса. Пока так",
-		private:   false,
-		createdAt: time.Now(),
-		name:      name,
-	}
-
-	binList.addBin(bin)
-
-	return bin, nil
-}
-
-func validateBinName(name string) error {
-	if name == "" {
-		return errors.New("Не передано название для Bin")
-	}
-
-	return nil
 }
