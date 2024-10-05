@@ -1,45 +1,28 @@
 package account
 
 import (
-	"fmt"
+	"demo/app-4/print"
+	"demo/app-4/validation"
 	"math/rand/v2"
 	"time"
-	"demo/app-4/validation"
-	"github.com/fatih/color"
 )
 
 var passwordChars = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*")
 
 type Account struct {
-	login    string
-	password string
-	link     string
-}
-
-type AccountWithTimeStamp struct { 
-	Account
-	createAt  time.Time
-	updatedAt time.Time
+	Login     string    `json:"login"`
+	Password  string    `json:"password"`
+	Link      string    `json:"url"`
+	CreateAt  time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (acc *Account) Print() {
-		kc := color.New(color.FgCyan)
-		vc := color.New(color.FgBlue).Add(color.Bold)
-
-		kc.Print("Логин - ")
-		vc.Println(acc.login)
-
-		kc.Print("Пароль - ")
-		vc.Println(acc.password)
-
-		kc.Print("Ссылка - ")
-		vc.Println(acc.link)
-}
-
-func (acc *AccountWithTimeStamp) Print() {
-	fmt.Printf("Создан: %s\n", acc.createAt)
-	fmt.Printf("Обновлен: %s\n", acc.updatedAt)
-	acc.Account.Print()
+	print.Data("Логин: ", acc.Login)
+	print.Data("Пароль: ", acc.Password)
+	print.Data("Ссылка: ", acc.Link)
+	print.Data("Создан: ", acc.CreateAt)
+	print.Data("Обновлен: ", acc.UpdatedAt)
 }
 
 func (acc *Account) generatePassword(n int) {
@@ -50,10 +33,10 @@ func (acc *Account) generatePassword(n int) {
 		pass[index] = passwordChars[rand.IntN(lenghtChars)]
 	}
 
-	acc.password = string(pass)
+	acc.Password = string(pass)
 }
 
-func NewAccountWithTimeStamp(login string, password string, link string) (*AccountWithTimeStamp, error) {
+func NewAccount(login string, password string, link string) (*Account, error) {
 	var err error
 
 	err = validation.ValidateLogin(login)
@@ -66,17 +49,15 @@ func NewAccountWithTimeStamp(login string, password string, link string) (*Accou
 		return nil, err
 	}
 
-	account := &AccountWithTimeStamp{
-		createAt:  time.Now(),
-		updatedAt: time.Now(),
-		Account: Account{
-			login:    login,
-			password: password,
-			link:     link,
-		},
+	account := &Account{
+		CreateAt:  time.Now(),
+		UpdatedAt: time.Now(),
+		Login:     login,
+		Password:  password,
+		Link:      link,
 	}
 
-	if account.password == "" {
+	if account.Password == "" {
 		account.generatePassword(12)
 	}
 
