@@ -1,24 +1,27 @@
 package bins
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
 )
 
 type Bin struct {
-	id        string
-	private   bool
-	createdAt time.Time
-	name      string
+	Id        string    `json:"id"`
+	Private   bool      `json:"private"`
+	CreatedAt time.Time `json:"createdAt"`
+	Name      string    `json:"name"`
 }
 
 type BinList struct {
-	Bins []Bin
+	Bins      []Bin     `json:"bins"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-func (binList *BinList) AddBin(bin *Bin) {
-	binList.Bins = append(binList.Bins, *bin)
+func (binList *BinList) AddBin(bin Bin) {
+	binList.Bins = append(binList.Bins, bin)
 }
 
 func (binList *BinList) Print() {
@@ -31,34 +34,44 @@ func (binList *BinList) Print() {
 }
 
 func (bin *Bin) Print() {
-	fmt.Println("id: ", bin.id)
-	fmt.Println("private: ", bin.private)
-	fmt.Println("createdAt: ", bin.createdAt)
-	fmt.Println("name: ", bin.name)
+	fmt.Println("id: ", bin.Id)
+	fmt.Println("private: ", bin.Private)
+	fmt.Println("createdAt: ", bin.CreatedAt)
+	fmt.Println("name: ", bin.Name)
 }
 
-func CreateBin(name string, binList *BinList) (*Bin, error) {
+func CreateBin(name string, binList *BinList) error {
 	err := validateBinName(name)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	bin := &Bin{
-		id:        "id будем получать из сервиса. Пока так",
-		private:   false,
-		createdAt: time.Now(),
-		name:      name,
+	bin := Bin{
+		Id:        "id будем получать из сервиса. Пока так",
+		Private:   false,
+		CreatedAt: time.Now(),
+		Name:      name,
 	}
 
 	binList.AddBin(bin)
 
-	return bin, nil
+	return nil
 }
 
 func validateBinName(name string) error {
 	if name == "" {
-		return errors.New("Не передано название для Bin")
+		return errors.New("bin name is required")
 	}
 
 	return nil
+}
+
+func (binList *BinList) ToBytes() ([]byte, error) {
+	bytes, err := json.Marshal(binList)
+
+	if err != nil {
+		return nil, errors.New("Can't create json")
+	}
+
+	return bytes, nil
 }

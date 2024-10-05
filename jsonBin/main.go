@@ -3,43 +3,29 @@ package main
 import (
 	"fmt"
 	"jsonBin/bins"
+	"jsonBin/print"
+	"jsonBin/storage"
 )
 
 func main() {
 	var err error
-	binList, err := initBinList()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	binList := storage.GetBinList()
 
 	name := promptBinName()
 
-	bin, err := bins.CreateBin(name, binList)
+	err = bins.CreateBin(name, binList)
 
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Println("Новый bin")
-	bin.Print()
-	fmt.Println("----------------")
-	binList.Print()
-}
-
-func initBinList() (*bins.BinList, error) {
-	// Что-то делаем
-	// Пока возвращаем пустой BinList
-
-	return &bins.BinList{
-		Bins: []bins.Bin{},
-	}, nil
+	storage.SaveBinList(binList)
 }
 
 func promptBinName() string {
 	var binName string
-	fmt.Print("Введите название Bin: ")
+	print.Prompt("Enter bin name: ", false)
 	fmt.Scanln(&binName)
 	return binName
 }
