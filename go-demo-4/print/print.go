@@ -11,7 +11,7 @@ func Message(message any) {
 	c.Println(message)
 }
 
-func Prompt(prompt string, newLine bool) {
+func Prompt(prompt any, newLine bool) {
 	c := color.New(color.FgBlue)
 	if newLine {
 		c.Println(prompt)
