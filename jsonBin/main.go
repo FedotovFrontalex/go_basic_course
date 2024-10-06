@@ -3,13 +3,17 @@ package main
 import (
 	"fmt"
 	"jsonBin/bins"
+	"jsonBin/file"
 	"jsonBin/print"
 	"jsonBin/storage"
 )
 
 func main() {
 	var err error
-	binList := storage.GetBinList()
+	fileStorage := file.NewFileStorage("bins.json")
+	binStorage := storage.NewStorage(fileStorage)
+
+	binList := binStorage.GetBinList()
 
 	name := promptBinName()
 
@@ -20,7 +24,7 @@ func main() {
 		return
 	}
 
-	storage.SaveBinList(binList)
+	binStorage.SaveBinList(binList)
 }
 
 func promptBinName() string {
