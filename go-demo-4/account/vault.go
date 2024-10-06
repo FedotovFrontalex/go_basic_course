@@ -1,7 +1,6 @@
 package account
 
 import (
-	"demo/app-4/files"
 	"demo/app-4/print"
 	"encoding/json"
 	"errors"
@@ -14,11 +13,24 @@ type Vault struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-func NewVault() *Vault {
-	bytes, err := files.ReadFile("accounts.json")
-	newVault := &Vault{
+type DB interface {
+		Write ([]byte)
+		Read () ([]byte, error)
+}
+
+type VaultWithDb struct {
+		Vault
+		db DB
+}
+
+func NewVault(db DB) *VaultWithDb {
+	bytes, err := db.Read()
+	newVault := &VaultWithDb{
+			Vault: Vault {
 		Accounts:  []Account{},
 		UpdatedAt: time.Now(),
+			},
+			db: db, 
 	}
 
 	if err != nil {
@@ -30,22 +42,25 @@ func NewVault() *Vault {
 		print.Error(errors.New("json поврежден"))
 		return newVault
 	}
-	return &vault
+	return &VaultWithDb{
+		Vault: vault,
+		db: db,
+	}
 }
 
-func (vault *Vault) AddAccount(acc Account) {
+func (vault *VaultWithDb) AddAccount(acc Account) {
 	vault.Accounts = append(vault.Accounts, acc)
 	vault.UpdatedAt = time.Now()
 	vault.save()
 }
 
-func (vault *Vault) save() {
+func (vault *VaultWithDb) save() {
 	data, err := vault.toBytes()
 	if err != nil {
 		print.Error(err)
 		return
 	}
-	files.WriteFile(data, "accounts.json")
+	vault.db.Write(data)
 }
 
 func (vault *Vault) toBytes() ([]byte, error) {
@@ -56,7 +71,7 @@ func (vault *Vault) toBytes() ([]byte, error) {
 	return bytes, nil
 }
 
-func (vault *Vault) FindAccountsByUrl(url string) []Account {
+func (vault *VaultWithDb) FindAccountsByUrl(url string) []Account {
 	var res []Account
 	for _, account := range vault.Accounts {
 		if strings.Contains(account.Link, url) {
@@ -67,7 +82,7 @@ func (vault *Vault) FindAccountsByUrl(url string) []Account {
 	return res
 }
 
-func (vault *Vault) DeleteAccountByUrl(url string) error {
+func (vault *VaultWithDb) DeleteAccountByUrl(url string) error {
 		accounts := []Account{}
 
 		for _, account := range vault.Accounts {
