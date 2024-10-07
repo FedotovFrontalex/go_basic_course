@@ -1,6 +1,7 @@
 package account
 
 import (
+	"demo/app-4/cry"
 	"demo/app-4/print"
 	"encoding/json"
 	"errors"
@@ -19,23 +20,27 @@ type DB interface {
 
 type VaultWithDb struct {
 	Vault
-	db DB
+	db  DB
+	cry *cry.Crypto
 }
 
-func NewVault(db DB) *VaultWithDb {
-	bytes, err := db.Read()
+func NewVault(db DB, cry *cry.Crypto) *VaultWithDb {
+	encBytes, err := db.Read()
+
 	newVault := &VaultWithDb{
 		Vault: Vault{
 			Accounts:  []Account{},
 			UpdatedAt: time.Now(),
 		},
-		db: db,
+		db:  db,
+		cry: cry,
 	}
 
 	if err != nil {
 		return newVault
 	}
 	var vault Vault
+	bytes := cry.Decrypt(encBytes)
 	err = json.Unmarshal(bytes, &vault)
 	if err != nil {
 		print.Error(errors.New("json поврежден"))
@@ -44,6 +49,7 @@ func NewVault(db DB) *VaultWithDb {
 	return &VaultWithDb{
 		Vault: vault,
 		db:    db,
+		cry:   cry,
 	}
 }
 
@@ -59,7 +65,8 @@ func (vault *VaultWithDb) save() {
 		print.Error(err)
 		return
 	}
-	vault.db.Write(data)
+	encData := vault.cry.Encrypt(data)
+	vault.db.Write(encData)
 }
 
 func (vault *Vault) toBytes() ([]byte, error) {
