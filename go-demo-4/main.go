@@ -2,10 +2,13 @@ package main
 
 import (
 	"demo/app-4/account"
+	"demo/app-4/cry"
 	"demo/app-4/jsonDB"
 	"demo/app-4/print"
 	"errors"
 	"fmt"
+	"github.com/joho/godotenv"
+	"os"
 	"strings"
 )
 
@@ -17,8 +20,13 @@ var menu = map[string]func(*account.VaultWithDb){
 }
 
 func main() {
-	db := jsonDb.NewJsonDb("accounts.json")
-	vault := account.NewVault(db)
+	db := jsonDb.NewJsonDb("accounts.vault")
+	err := godotenv.Load()
+	if err != nil {
+		print.Error(errors.New("Не удалось найти env файл"))
+	}
+	cry := cry.NewCrypto(os.Getenv("KEY"))
+	vault := account.NewVault(db, cry)
 
 	for {
 		userInput := promptData(
