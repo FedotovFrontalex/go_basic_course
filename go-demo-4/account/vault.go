@@ -4,7 +4,6 @@ import (
 	"demo/app-4/print"
 	"encoding/json"
 	"errors"
-	"strings"
 	"time"
 )
 
@@ -14,23 +13,23 @@ type Vault struct {
 }
 
 type DB interface {
-		Write ([]byte)
-		Read () ([]byte, error)
+	Write([]byte)
+	Read() ([]byte, error)
 }
 
 type VaultWithDb struct {
-		Vault
-		db DB
+	Vault
+	db DB
 }
 
 func NewVault(db DB) *VaultWithDb {
 	bytes, err := db.Read()
 	newVault := &VaultWithDb{
-			Vault: Vault {
-		Accounts:  []Account{},
-		UpdatedAt: time.Now(),
-			},
-			db: db, 
+		Vault: Vault{
+			Accounts:  []Account{},
+			UpdatedAt: time.Now(),
+		},
+		db: db,
 	}
 
 	if err != nil {
@@ -44,7 +43,7 @@ func NewVault(db DB) *VaultWithDb {
 	}
 	return &VaultWithDb{
 		Vault: vault,
-		db: db,
+		db:    db,
 	}
 }
 
@@ -71,10 +70,10 @@ func (vault *Vault) toBytes() ([]byte, error) {
 	return bytes, nil
 }
 
-func (vault *VaultWithDb) FindAccountsByUrl(url string) []Account {
+func (vault *VaultWithDb) FindAccounts(str string, checker func(Account, string) bool) []Account {
 	var res []Account
 	for _, account := range vault.Accounts {
-		if strings.Contains(account.Link, url) {
+		if checker(account, str) {
 			res = append(res, account)
 		}
 	}
@@ -83,20 +82,20 @@ func (vault *VaultWithDb) FindAccountsByUrl(url string) []Account {
 }
 
 func (vault *VaultWithDb) DeleteAccountByUrl(url string) error {
-		accounts := []Account{}
+	accounts := []Account{}
 
-		for _, account := range vault.Accounts {
-				if account.Link != url {
-						accounts = append(accounts, account)
-				}
+	for _, account := range vault.Accounts {
+		if account.Link != url {
+			accounts = append(accounts, account)
 		}
+	}
 
-		if len(accounts) == len(vault.Accounts) {
-				return errors.New("Аккаунт не найден")
-		}
+	if len(accounts) == len(vault.Accounts) {
+		return errors.New("Аккаунт не найден")
+	}
 
-		vault.Accounts = accounts
-		vault.UpdatedAt = time.Now()
-		vault.save()
-		return nil
+	vault.Accounts = accounts
+	vault.UpdatedAt = time.Now()
+	vault.save()
+	return nil
 }
