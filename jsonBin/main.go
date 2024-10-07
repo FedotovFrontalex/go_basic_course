@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"jsonBin/api"
 	"jsonBin/bins"
+	"jsonBin/config"
 	"jsonBin/file"
 	"jsonBin/print"
 	"jsonBin/storage"
@@ -10,6 +12,8 @@ import (
 
 func main() {
 	var err error
+	config := config.NewConfig()
+	api.Init(config)
 	fileStorage := file.NewFileStorage("bins.json")
 	binStorage := storage.NewStorage(fileStorage)
 
