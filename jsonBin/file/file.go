@@ -8,13 +8,13 @@ import (
 )
 
 type FileStorage struct {
-		Filename string
+	Filename string
 }
 
 func NewFileStorage(filename string) *FileStorage {
-		return &FileStorage{
-				Filename: filename,
-		}
+	return &FileStorage{
+		Filename: filename,
+	}
 }
 
 func (fileStorage *FileStorage) Write(content []byte) {
@@ -34,6 +34,7 @@ func (fileStorage *FileStorage) Write(content []byte) {
 }
 
 func (fileStorage *FileStorage) Read() ([]byte, error) {
+	print.Message(fileStorage.Filename)
 	data, err := os.ReadFile(fileStorage.Filename)
 
 	if err != nil {
@@ -43,12 +44,23 @@ func (fileStorage *FileStorage) Read() ([]byte, error) {
 	return data, nil
 }
 
-func (fileStorage *FileStorage) IsJson(name string) (bool, error) {
-	data, err := fileStorage.Read()
+func ReadFile(filename string) ([]byte, error) {
+	data, err := os.ReadFile(filename)
+
 	if err != nil {
-		return false, err
+		return nil, errors.New("Can't read file")
 	}
+
+	isJsonData := isJson(data)
+
+	if !isJsonData {
+		return nil, errors.New("is not json")
+	}
+	return data, nil
+}
+
+func isJson(data []byte) bool {
 	isJson := json.Valid(data)
 
-	return isJson, nil
+	return isJson
 }

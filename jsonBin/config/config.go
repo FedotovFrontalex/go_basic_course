@@ -2,14 +2,14 @@ package config
 
 import (
 	"errors"
+	"github.com/joho/godotenv"
 	"jsonBin/print"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	Key string
+	Key       string
+	AccessKey string
 }
 
 func NewConfig() *Config {
@@ -19,6 +19,7 @@ func NewConfig() *Config {
 	}
 
 	return &Config{
-		Key: os.Getenv("KEY"),
+		Key:       os.Getenv("KEY"),
+		AccessKey: os.Getenv("ACCESS"),
 	}
 }

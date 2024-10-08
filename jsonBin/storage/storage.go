@@ -9,18 +9,18 @@ import (
 )
 
 type Db interface {
-		Write ([]byte)
-		Read () ([]byte, error)
+	Write([]byte)
+	Read() ([]byte, error)
 }
 
 type Storage struct {
-		db Db
+	db Db
 }
 
 func NewStorage(db Db) *Storage {
-		return &Storage{
-				db: db,
-		}
+	return &Storage{
+		db: db,
+	}
 }
 
 func (storage *Storage) SaveBinList(binList *bins.BinList) {
@@ -32,6 +32,18 @@ func (storage *Storage) SaveBinList(binList *bins.BinList) {
 		return
 	}
 	storage.db.Write(data)
+}
+
+func (storage *Storage) AddBin(bin *bins.Bin) {
+	list := storage.GetBinList()
+	list.AddBin(*bin)
+	storage.SaveBinList(list)
+}
+
+func (storage *Storage) DeleteBin(id string) {
+	list := storage.GetBinList()
+	list.DeleteBin(id)
+	storage.SaveBinList(list)
 }
 
 func (storage *Storage) GetBinList() *bins.BinList {
