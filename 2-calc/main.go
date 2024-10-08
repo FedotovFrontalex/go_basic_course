@@ -11,6 +11,12 @@ import (
 	"unicode"
 )
 
+var operationsMap = map[string]func([]float64) float64{
+	"sum": calcSum,
+	"avg": calcAVG,
+	"med": calcMed,
+}
+
 func main() {
 	var operation string
 	var err error
@@ -35,13 +41,12 @@ func main() {
 }
 
 func requestOperationType() (string, error) {
-	fmt.Println("Enter the name of the operation")
-	fmt.Println("sum - Calculate the amount")
-	fmt.Println("avg - Calculate the average")
-	fmt.Println("med - Calculate the median")
-
-	var userInput string
-	fmt.Scan(&userInput)
+	userInput := promptData(
+		"sum - Calculate the amount",
+		"avg - Calculate the average",
+		"med - Calculate the median",
+		"Enter the name of the operation",
+	)
 
 	if userInput != "sum" && userInput != "avg" && userInput != "med" {
 		return "", errors.New("Invalid operation type")
@@ -51,16 +56,13 @@ func requestOperationType() (string, error) {
 }
 
 func calculate(operationType string, operations []float64) (float64, error) {
-	switch operationType {
-	case "sum":
-		return calcSum(operations), nil
-	case "avg":
-		return calcAVG(operations), nil
-	case "med":
-		return calcMed(operations), nil
-	default:
+	operationFn := operationsMap[operationType]
+
+	if operationFn == nil {
 		return 0.0, errors.New("I can't do it.")
 	}
+
+	return operationFn(operations), nil
 }
 
 func requestOperations() []float64 {
@@ -121,4 +123,17 @@ func calcMed(slice []float64) float64 {
 		return (slice[idx] + slice[idx-1]) / 2
 	}
 
+}
+
+func promptData(content ...any) string {
+	var res string
+	for idx := range content {
+		if idx != len(content)-1 {
+			fmt.Println(content[idx])
+			continue
+		}
+		fmt.Printf("%v: ", content[idx])
+	}
+	fmt.Scanln(&res)
+	return res
 }

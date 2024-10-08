@@ -2,14 +2,22 @@ package main
 
 import (
 	"fmt"
+	"jsonBin/api"
 	"jsonBin/bins"
+	"jsonBin/config"
+	"jsonBin/file"
 	"jsonBin/print"
 	"jsonBin/storage"
 )
 
 func main() {
 	var err error
-	binList := storage.GetBinList()
+	config := config.NewConfig()
+	api.Init(config)
+	fileStorage := file.NewFileStorage("bins.json")
+	binStorage := storage.NewStorage(fileStorage)
+
+	binList := binStorage.GetBinList()
 
 	name := promptBinName()
 
@@ -20,7 +28,7 @@ func main() {
 		return
 	}
 
-	storage.SaveBinList(binList)
+	binStorage.SaveBinList(binList)
 }
 
 func promptBinName() string {
