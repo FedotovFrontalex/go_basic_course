@@ -7,6 +7,9 @@ import (
 	"os"
 )
 
+var ErrReadFile = errors.New("Can't read file")
+var ErrNotJson = errors.New("is not json")
+
 type FileStorage struct {
 	Filename string
 }
@@ -48,13 +51,13 @@ func ReadFile(filename string) ([]byte, error) {
 	data, err := os.ReadFile(filename)
 
 	if err != nil {
-		return nil, errors.New("Can't read file")
-	}
+		return nil, ErrReadFile 	
+}
 
 	isJsonData := isJson(data)
 
 	if !isJsonData {
-		return nil, errors.New("is not json")
+		return nil, ErrNotJson 
 	}
 	return data, nil
 }

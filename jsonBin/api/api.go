@@ -16,13 +16,15 @@ type Api struct {
 	AccessKey string
 }
 
-type createApiResponse struct {
+type CreateApiResponse struct {
 	Metadata bins.Bin `json:"metadata"`
 }
 
-type errorBinResponse struct {
+type ErrorBinResponse struct {
 	Message string `json:"message"`
 }
+
+var ErrHttpRequest = errors.New("error request")
 
 func Init(config *config.Config) *Api {
 	return &Api{
@@ -38,7 +40,7 @@ func (api *Api) Create(filename string, binName string) (*bins.Bin, error) {
 		return nil, err
 	}
 
-	resp, err := http.NewRequest(
+	resp, _ := http.NewRequest(
 		http.MethodPost,
 		"https://api.jsonbin.io/v3/b",
 		bytes.NewBuffer(data),
@@ -52,9 +54,10 @@ func (api *Api) Create(filename string, binName string) (*bins.Bin, error) {
 	response, err := http.DefaultClient.Do(resp)
 
 	if err != nil {
-		return nil, err
+		return nil, ErrHttpRequest
 	}
 	defer response.Body.Close()
+
 	body, err := io.ReadAll(response.Body)
 
 	if err != nil {
@@ -62,13 +65,13 @@ func (api *Api) Create(filename string, binName string) (*bins.Bin, error) {
 	}
 
 	if response.StatusCode == 200 {
-		var responseData createApiResponse
+		var responseData CreateApiResponse
 		json.Unmarshal(body, &responseData)
 
 		return &responseData.Metadata, nil
 	}
 
-	var errorResponse errorBinResponse
+	var errorResponse ErrorBinResponse
 	json.Unmarshal(body, &errorResponse)
 
 	return nil, errors.New(errorResponse.Message)
@@ -95,7 +98,7 @@ func (api *Api) Update(filename string, id string) error {
 	response, err := http.DefaultClient.Do(resp)
 
 	if err != nil {
-		return err
+		return ErrHttpRequest
 	}
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
@@ -108,7 +111,7 @@ func (api *Api) Update(filename string, id string) error {
 		return nil
 	}
 
-	var errorResponse errorBinResponse
+	var errorResponse ErrorBinResponse
 	json.Unmarshal(body, &errorResponse)
 
 	return errors.New(errorResponse.Message)
@@ -142,7 +145,7 @@ func (api *Api) Get(id string) (string, error) {
 		return string(body), nil
 	}
 
-	var errorResponse errorBinResponse
+	var errorResponse ErrorBinResponse
 	json.Unmarshal(body, &errorResponse)
 
 	return "", errors.New(errorResponse.Message)
@@ -176,7 +179,7 @@ func (api *Api) Delete(id string) error {
 		return err
 	}
 
-	var errorResponse errorBinResponse
+	var errorResponse ErrorBinResponse
 	json.Unmarshal(body, &errorResponse)
 
 	return errors.New(errorResponse.Message)
