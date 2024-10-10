@@ -4,12 +4,26 @@ import (
 	"encoding/json"
 	"errors"
 	"jsonBin/bins"
-	"jsonBin/file"
 	"jsonBin/print"
 	"time"
 )
 
-func SaveBinList(binList *bins.BinList) {
+type Db interface {
+	Write([]byte)
+	Read() ([]byte, error)
+}
+
+type Storage struct {
+	db Db
+}
+
+func NewStorage(db Db) *Storage {
+	return &Storage{
+		db: db,
+	}
+}
+
+func (storage *Storage) SaveBinList(binList *bins.BinList) {
 	binList.UpdatedAt = time.Now()
 	data, err := binList.ToBytes()
 
@@ -17,11 +31,23 @@ func SaveBinList(binList *bins.BinList) {
 		print.Error(err)
 		return
 	}
-	file.WriteFile(data, "bins.json")
+	storage.db.Write(data)
 }
 
-func GetBinList() *bins.BinList {
-	data, err := file.ReadFile("bins.json")
+func (storage *Storage) AddBin(bin *bins.Bin) {
+	list := storage.GetBinList()
+	list.AddBin(*bin)
+	storage.SaveBinList(list)
+}
+
+func (storage *Storage) DeleteBin(id string) {
+	list := storage.GetBinList()
+	list.DeleteBin(id)
+	storage.SaveBinList(list)
+}
+
+func (storage *Storage) GetBinList() *bins.BinList {
+	data, err := storage.db.Read()
 	newBinList :=
 		&bins.BinList{
 			Bins:      []bins.Bin{},

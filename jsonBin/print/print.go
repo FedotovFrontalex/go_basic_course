@@ -20,8 +20,9 @@ func Prompt(prompt string, newLine bool) {
 	c.Print(prompt)
 }
 
-func Success(message string) {
-	color.Green(message)
+func Success(message any) {
+	success := color.New(color.FgGreen)
+	success.Println(message)
 }
 
 func Data(text string, value any) {

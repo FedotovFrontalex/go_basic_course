@@ -58,6 +58,18 @@ func CreateBin(name string, binList *BinList) error {
 	return nil
 }
 
+func (binList *BinList) DeleteBin(id string) {
+	var bins []Bin
+
+	for _, value := range binList.Bins {
+		if value.Id != id {
+			bins = append(bins, value)
+		}
+	}
+
+	binList.Bins = bins
+}
+
 func validateBinName(name string) error {
 	if name == "" {
 		return errors.New("bin name is required")
